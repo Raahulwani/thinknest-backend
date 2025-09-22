@@ -4,16 +4,12 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 ENV NODE_ENV=development
 
-# Copy package and tsconfig from the subfolder
-COPY thinknest-backend/package*.json ./
-COPY thinknest-backend/tsconfig*.json ./
+# Copy the entire backend subfolder (simplifies path issues)
+COPY thinknest-backend ./thinknest-backend
 
+# Install and build from within the subfolder
+WORKDIR /app/thinknest-backend
 RUN npm ci
-
-# Copy source code
-COPY thinknest-backend/src ./src
-
-# Build to dist/
 RUN npm run build
 
 # Stage 2 - production runtime
@@ -22,9 +18,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-COPY --from=builder /app/package*.json ./
+# Copy only the runtime artifacts from the built subfolder
+COPY --from=builder /app/thinknest-backend/package*.json ./
 RUN npm ci --omit=dev
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/thinknest-backend/dist ./dist
 
 EXPOSE 3000
 CMD ["node", "dist/server.js"]
