@@ -10,6 +10,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     environment: production
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
     
     steps:
     - name: Checkout code
@@ -33,10 +37,16 @@ jobs:
           ${{ secrets.DOCKER_USERNAME }}/thinknest-app:latest
           ${{ secrets.DOCKER_USERNAME }}/thinknest-app:${{ github.sha }}
 
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ env.ARM_CLIENT_ID }}
+        tenant-id: ${{ env.ARM_TENANT_ID }}
+        subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: thinknest-app-d69498b1
+        app-name: thinknest-app
         slot-name: production
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: ${{ secrets.DOCKER_USERNAME }}/thinknest-app:latest
