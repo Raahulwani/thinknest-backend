@@ -39,8 +39,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            raahulwani/thinknest-app:${{ steps.meta.outputs.image_tag }}
-            raahulwani/thinknest-app:latest
+            ${{ secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME }}/thinknest-app:${{ steps.meta.outputs.image_tag }}
+            ${{ secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME }}/thinknest-app:latest
 
   terraform_apply:
     name: Terraform init/plan/apply
@@ -50,7 +50,7 @@ jobs:
       run:
         working-directory: terraform
     env:
-      TF_VAR_docker_image_name: raahulwani/thinknest-app
+      TF_VAR_docker_image_name: ${{ secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME }}/thinknest-app
       TF_VAR_docker_image_tag: ${{ needs.build_and_push.outputs.image_tag }}
       TF_VAR_postgres_password: ${{ secrets.TF_VAR_postgres_password || secrets.TF_VAR_POSTGRES_PASSWORD }}
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
