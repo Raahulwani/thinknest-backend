@@ -62,6 +62,7 @@ resource "azurerm_linux_web_app" "app" {
 
   app_settings = {
     DATABASE_URL = "postgres://${var.postgres_admin_username}:${var.postgres_password}@${azurerm_postgresql_flexible_server.db.fqdn}:5432/${var.resource_prefix}"
+    WEBSITES_PORT = "3000"
   }
 }
 
