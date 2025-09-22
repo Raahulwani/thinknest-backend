@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -43,6 +46,7 @@ jobs:
         client-id: ${{ env.ARM_CLIENT_ID }}
         tenant-id: ${{ env.ARM_TENANT_ID }}
         subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+        client-secret: ${{ secrets.ARM_CLIENT_SECRET }}
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
