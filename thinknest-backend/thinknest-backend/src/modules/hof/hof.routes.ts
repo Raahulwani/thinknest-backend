@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { getBadges, getInnovator, getTeam, getTags, getYears, listInnovators, listTeams } from "./hof.controller";
+const r = Router();
+r.get("/innovators", listInnovators);
+r.get("/teams", listTeams);
+r.get("/innovators/:id", getInnovator);
+r.get("/teams/:id", getTeam);
+r.get("/years", getYears);
+r.get("/badges", getBadges);
+r.get("/tags", getTags);
+export default r;
