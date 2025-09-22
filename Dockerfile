@@ -9,7 +9,7 @@ COPY thinknest-backend ./thinknest-backend
 
 # Install and build from within the subfolder
 WORKDIR /app/thinknest-backend
-RUN npm ci
+RUN npm install
 RUN npm run build
 
 # Stage 2 - production runtime
@@ -20,7 +20,7 @@ ENV PORT=3000
 
 # Copy only the runtime artifacts from the built subfolder
 COPY --from=builder /app/thinknest-backend/package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 COPY --from=builder /app/thinknest-backend/dist ./dist
 
 EXPOSE 3000
