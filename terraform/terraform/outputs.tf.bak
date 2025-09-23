@@ -1,8 +1,0 @@
-# outputs.tf (if you have a separate file)
-output "web_app_url" {
-  value = azurerm_linux_web_app.app.default_hostname  # CORRECTED
-}
-
-output "web_app_name" {
-  value = azurerm_linux_web_app.app.name  # CORRECTED
-}

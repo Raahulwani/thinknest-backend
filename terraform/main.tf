@@ -25,11 +25,10 @@ resource "random_string" "pg_suffix" {
 }
 
 # -------------------------------
-# Resource Group
+# Existing Resource Group (data source)
 # -------------------------------
-resource "azurerm_resource_group" "rg" {
-  name     = "${var.resource_prefix}-rg"
-  location = var.location
+data "azurerm_resource_group" "rg" {
+  name = "${var.resource_prefix}-rg"
 }
 
 # -------------------------------
@@ -37,8 +36,8 @@ resource "azurerm_resource_group" "rg" {
 # -------------------------------
 resource "azurerm_service_plan" "asp" {
   name                = "${var.resource_prefix}-plan"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   os_type             = "Linux"
   sku_name            = "F1"
 }
@@ -48,8 +47,8 @@ resource "azurerm_service_plan" "asp" {
 # -------------------------------
 resource "azurerm_linux_web_app" "app" {
   name                = "${var.resource_prefix}-app"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.asp.id
 
   site_config {
@@ -60,56 +59,43 @@ resource "azurerm_linux_web_app" "app" {
     }
   }
 
-  app_settings = {
-    DATABASE_URL = "postgres://${var.postgres_admin_username}:${var.postgres_password}@${azurerm_postgresql_flexible_server.db.fqdn}:5432/${var.resource_prefix}"
-    WEBSITES_PORT = "3000"
-  }
+  app_settings = merge(local.app_settings_base, local.db_settings)
 }
 
 # -------------------------------
 # PostgreSQL Flexible Server
 # -------------------------------
-resource "azurerm_postgresql_flexible_server" "db" {
-  name                   = "${var.resource_prefix}-pg-${random_string.pg_suffix.result}"
-  resource_group_name    = azurerm_resource_group.rg.name
-  location               = azurerm_resource_group.rg.location
-  administrator_login    = var.postgres_admin_username
-  administrator_password = var.postgres_password
-  version                = "14"
-  sku_name               = "B_Standard_B1ms"
-
-  storage_mb                  = 32768
-  backup_retention_days        = 7
-  geo_redundant_backup_enabled = false
+data "azurerm_postgresql_flexible_server" "db" {
+  count               = var.postgres_server_name != "" ? 1 : 0
+  name                = var.postgres_server_name
+  resource_group_name = data.azurerm_resource_group.rg.name
 }
 
-# Create a default database matching the resource prefix
-resource "azurerm_postgresql_flexible_server_database" "appdb" {
-  name      = var.resource_prefix
-  server_id = azurerm_postgresql_flexible_server.db.id
-  collation = "en_US.utf8"
-  charset   = "UTF8"
-}
+# Database lookup not supported as data source in provider; assuming exists
 
 # Allow access from Azure services and App Service outbound IPs (simplified)
-resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure" {
-  name             = "allow-azure"
-  server_id        = azurerm_postgresql_flexible_server.db.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "0.0.0.0"
-}
+// Firewall left unmanaged to avoid drift
 
 # -------------------------------
 # Outputs
 # -------------------------------
 output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
+  value = data.azurerm_resource_group.rg.name
 }
 
 output "webapp_url" {
   value = azurerm_linux_web_app.app.default_hostname
 }
 
+locals {
+  db_fqdn        = var.postgres_server_name != "" ? data.azurerm_postgresql_flexible_server.db[0].fqdn : ""
+  database_url   = local.db_fqdn != "" ? "postgres://${var.postgres_admin_username}:${var.postgres_password}@${local.db_fqdn}:5432/${var.resource_prefix}" : ""
+  app_settings_base = {
+    WEBSITES_PORT = "3000"
+  }
+  db_settings = local.database_url != "" ? { DATABASE_URL = local.database_url } : {}
+}
+
 output "postgres_server" {
-  value = azurerm_postgresql_flexible_server.db.fqdn
+  value = local.db_fqdn
 }
