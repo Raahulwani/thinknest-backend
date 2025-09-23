@@ -54,8 +54,7 @@ resource "azurerm_linux_web_app" "app" {
   site_config {
     always_on = false
     application_stack {
-      docker_image     = var.docker_image_name
-      docker_image_tag = var.docker_image_tag
+      docker_image_name = "${var.docker_image_name}:${var.docker_image_tag}"
     }
   }
 
