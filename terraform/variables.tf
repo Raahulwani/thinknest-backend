@@ -29,6 +29,7 @@ variable "postgres_password" {
   sensitive   = true
 }
 
+
 variable "postgres_server_name" {
   description = "Name of an existing PostgreSQL Flexible Server to use"
   type        = string

@@ -41,7 +41,6 @@ resource "azurerm_service_plan" "asp" {
   os_type             = "Linux"
   sku_name            = "B1"
 }
-
 # -------------------------------
 # Web App
 # -------------------------------
