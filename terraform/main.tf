@@ -41,9 +41,11 @@ resource "azurerm_service_plan" "asp" {
   os_type             = "Linux"
   sku_name            = "B1"
 }
+
 # -------------------------------
 # Web App
 # -------------------------------
+
 resource "azurerm_linux_web_app" "app" {
   name                = "${var.resource_prefix}-app"
   location            = var.app_service_location
@@ -63,6 +65,7 @@ resource "azurerm_linux_web_app" "app" {
 # -------------------------------
 # PostgreSQL Flexible Server
 # -------------------------------
+
 data "azurerm_postgresql_flexible_server" "db" {
   count               = var.postgres_server_name != "" ? 1 : 0
   name                = var.postgres_server_name
