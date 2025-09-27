@@ -32,7 +32,13 @@ variable "postgres_password" {
 variable "postgres_server_name" {
   description = "Name of an existing PostgreSQL Flexible Server to use"
   type        = string
-  default     = ""
+  default     = "thinknest-pg-knrf"
+}
+
+variable "app_service_location" {
+  description = "Azure region to create the App Service Plan/Web App in"
+  type        = string
+  default     = "eastus"
 }
 
 variable "subscription_id" {

@@ -32,14 +32,14 @@ data "azurerm_resource_group" "rg" {
 }
 
 # -------------------------------
-# App Service Plan
+# App Service Plan (new, in a region with likely quota)
 # -------------------------------
 resource "azurerm_service_plan" "asp" {
   name                = "${var.resource_prefix}-plan"
-  location            = data.azurerm_resource_group.rg.location
+  location            = var.app_service_location
   resource_group_name = data.azurerm_resource_group.rg.name
   os_type             = "Linux"
-  sku_name            = "F1"
+  sku_name            = "B1"
 }
 
 # -------------------------------
@@ -47,7 +47,7 @@ resource "azurerm_service_plan" "asp" {
 # -------------------------------
 resource "azurerm_linux_web_app" "app" {
   name                = "${var.resource_prefix}-app"
-  location            = data.azurerm_resource_group.rg.location
+  location            = var.app_service_location
   resource_group_name = data.azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.asp.id
 
