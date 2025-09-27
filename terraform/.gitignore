@@ -13,7 +13,7 @@ pnpm-debug.log*
 .idea/
 
 # Terraform
-terraform/.terraform/
+#terraform/.terraform/
 *.tfstate
 *.tfstate.*
 crash.log
