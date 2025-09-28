@@ -13,16 +13,19 @@ pnpm-debug.log*
 .idea/
 
 # Terraform
-#terraform/.terraform/
+# Ignore Terraform state files and local override configs
+.terraform/
 *.tfstate
 *.tfstate.*
-crash.log
 *.tfvars
 *.tfvars.json
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Crash logs
+crash.log
 
 # OS
 Thumbs.db
