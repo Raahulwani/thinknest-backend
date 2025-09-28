@@ -9,6 +9,7 @@ terraform {
 
 provider "azurerm" {
   features {}
+  subscription_id = "9eca68f5-f843-4354-ae4a-09f793e81955"
 }
 
 # Get existing resource group
